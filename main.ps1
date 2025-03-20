@@ -5,6 +5,7 @@
 . .\ipconfig.ps1
 . .\ssh.ps1
 . .\ftp.ps1
+. .\http.ps1
 
 # Submenú: Configuración IP
 Function IpConfigMenu {
@@ -132,6 +133,48 @@ Function FtpConfigMenu {
     } while ($choice -ne 3)
 }
 
+function HttpConfigMenu {
+
+    do {
+        ClearConsole
+        PrintMessage "info" "============================"
+        PrintMessage "info" "Submenú: Configuración HTTP"
+        PrintMessage "info" "1) Salir"
+        PrintMessage "info" "2) Tomcat"
+        PrintMessage "info" "3) IIS"
+        PrintMessage "info" "4) Nginx"
+        PrintMessage "info" "============================"
+        $choice = Read-Host "Seleccione una opción"
+
+    switch ($choice) {
+        1 {
+            Write-Host "Saliendo..."
+            break
+        }
+        2 {
+            $puerto = Solicitar-Puerto -mensaje "Selecciona el puerto:" -defaultPort 8080
+            if ($puerto) {
+                Install-Tomcat -puerto $puerto 
+            }
+        }
+        3 {
+            $puerto = Solicitar-Puerto -mensaje "Selecciona el puerto:" -defaultPort 80
+            if ($puerto) { Conf-IIS -port $puerto }
+        }
+        4 { 
+            $puerto = Solicitar-Puerto -mensaje "Selecciona el puerto:" -defaultPort 80
+            if ($puerto) {
+                Dependencias    # Verificar Visual C++ (requisito para Nginx)
+                Install-Nginx -puerto $puerto 
+            }
+        }
+        default { PrintMessage "error" "Opción inválida, intente nuevamente." }
+    }
+        Pause
+    } while ($choice -ne 1)
+
+}
+
 # Menú principal
 Function MainMenu {
     do {
@@ -144,6 +187,7 @@ Function MainMenu {
         PrintMessage "info" "4. Configuración DHCP"
         PrintMessage "info" "5. Configuración SSH"
         PrintMessage "info" "6. Configuración FTP"
+        PrintMessage "info" "7. Configuración HTTP"
         PrintMessage "info" "============================"
         $choice = Read-Host "Seleccione una opción"
 
@@ -154,6 +198,7 @@ Function MainMenu {
             4 { DhcpConfigMenu }
             5 { SshConfigMenu }
             6 { FtpConfigMenu }
+            7 { HttpConfigMenu }
             default { PrintMessage "error" "Opción inválida, intente nuevamente." }
         }
         Pause
